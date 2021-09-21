@@ -8,13 +8,12 @@
 using namespace std;
 
 double BestSolutionSavingParallelSolve(MultidimensionalKnapsack knapsack) {
-	// Knapsack capacity
 	int n = knapsack.getN();
 	int m = knapsack.getM();
 	vector<Item> items = knapsack.getItems();
 	vector<int> b = knapsack.getB();
 	vector<vector<int>> indices = GenerateAuxiliaryIndices(knapsack);
-	// I -  items we 100% use in current node, E - set of items we dont use.
+	// I - set of items guaranteed used in current node, E - guaranteed not used items.
 	set<Item> I, E;
 	// Nodes which can become new best solution.
 	vector<Node> availableNodes;
@@ -29,15 +28,14 @@ double BestSolutionSavingParallelSolve(MultidimensionalKnapsack knapsack) {
 	int best = 0;
 	startNode.nodeID = 0;
 	availableNodes.push_back(startNode);
-	// Branch and bound algorithm with best solution saving in action.
 	while (true) {
 		if ((availableNodes.size() == 1) && (best > 0) && (availableNodes[0].branchNum == -1)) {
 			break;
 		}
 		int countOfNodes = availableNodes.size();
-		// Saves best solution for each thread(count of threads = 12).
-		vector<int> bests(12);
-		vector<Node> bestNodes(12);
+		// Saves best solution for each thread.
+		vector<int> bests(omp_get_max_threads());
+		vector<Node> bestNodes(omp_get_max_threads());
 		availableNodes.resize(availableNodes.size() * 2);
 #pragma omp parallel for
 		for (int i = 0; i < countOfNodes; i++)
@@ -107,14 +105,14 @@ double BestSolutionSavingParallelSolve(MultidimensionalKnapsack knapsack) {
 
 		}
 		// Finding best solution for whole vector.
-		for (size_t i = 0; i < 12; i++)
+		for (size_t i = 0; i < omp_get_max_threads(); i++)
 		{
 			if (bests[i] > best) {
 				best = bests[i];
 				bestNode = bestNodes[i];
 			}
 		}
-		// Romoving nodes with bound less then best solution value.
+		// Removing nodes with bound less then best solution value.
 		vector<Node>::iterator it;
 		for (it = availableNodes.begin(); it != availableNodes.end();)
 		{

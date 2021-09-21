@@ -24,6 +24,7 @@ private:
 class MultidimensionalKnapsack {
 public:
 	MultidimensionalKnapsack(int n, int m, vector<Item> items, vector<int> b);
+	MultidimensionalKnapsack();
 	int getM();
 	int getN();
 	vector<Item> getItems();

@@ -7,7 +7,7 @@
 using namespace std;
 
 
-
+// Compares nodes by its bound value.
 bool Node::operator<(const Node& rhs) const
 {
 	if (bound == rhs.bound) {
@@ -36,9 +36,11 @@ vector<vector<int>> GenerateAuxiliaryIndices(MultidimensionalKnapsack knapsack) 
 	vector<int> b = knapsack.getB();
 	for (int i = 0; i < m; i++)
 	{
+		// Items value ratio in each constraight.
 		vector<pair<double, int>> ratio;
 		for (int j = 0; j < n; j++)
 		{
+			// Item quality calculation.
 			double q = (double)items[j].getValue() / items[j].getConstraights()[i];
 			ratio.push_back(make_pair(q, j));
 		}
@@ -54,6 +56,7 @@ vector<vector<int>> GenerateAuxiliaryIndices(MultidimensionalKnapsack knapsack) 
 	return indices;
 }
 
+// Gets current node upper bound.
 pair<double, int> GetBound(
 	MultidimensionalKnapsack knapsack, vector<vector<int>> indices, set<Item> I, set<Item> E) {
 	int n = knapsack.getN();
@@ -61,7 +64,8 @@ pair<double, int> GetBound(
 	vector<Item> items = knapsack.getItems();
 	vector<int> b = knapsack.getB();
 	double min = DBL_MAX;
-	int minIndex = 9999;
+	// Last item used to meet the constraight.
+	int minIndex = 90999;
 	vector<pair<double, int>> bounds(m);
 	for (int i = 0; i < m; i++)
 	{
@@ -76,15 +80,19 @@ pair<double, int> GetBound(
 				seq[j] = 1;
 			}
 		}
+		// i-th constraight bound calculation.
 		for (int j = 0; j < n; j++)
 		{
+			// Skip item(allready used).
 			if ((I.count(items[indices[i][j]]) == 1) || (E.count(items[indices[i][j]]) == 1)) {
 				continue;
 			}
+			// Add item weight to sum if constraight is still higher then sum.
 			if (weight + items[indices[i][j]].getConstraights()[i] <= b[i]) {
 				weight += items[indices[i][j]].getConstraights()[i];
 				seq[indices[i][j]] = 1;
 			}
+			// Final item to meet the constraight.
 			else {
 				seq[indices[i][j]] = (b[i] - weight) / items[indices[i][j]].getConstraights()[i];
 				weight = b[i];
@@ -101,7 +109,7 @@ pair<double, int> GetBound(
 			bounds[i].first += seq[j] * items[j].getValue();
 		}
 	}
-
+	// Bound is the lowest number among all constaights max values.
 	for (auto bound : bounds)
 	{
 		if (bound.first < min) {
@@ -112,7 +120,7 @@ pair<double, int> GetBound(
 	return make_pair(min, minIndex);
 }
 
-// Checks if solution at current node is possible.
+// Checks if solution at current node is feasible.
 bool isFeasible(MultidimensionalKnapsack knapsack, set<Item> I, set<Item> E) {
 	int n = knapsack.getN();
 	int m = knapsack.getM();

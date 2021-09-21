@@ -9,7 +9,7 @@ using namespace std;
 
 double BestSolutionSavingParallelSolve(MultidimensionalKnapsack knapsack);
 double BestSolutionSavingSolve(MultidimensionalKnapsack knapsack);
-double OrderedSetOfNodesParallelSolve(MultidimensionalKnapsack knapsack);
+double OrderedSetOfNodesParallelSolve(MultidimensionalKnapsack knapsack, int countOfThreads);
 double OrderedSetOfNodesSolve(MultidimensionalKnapsack knapsack);
 
 #endif

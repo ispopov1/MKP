@@ -34,6 +34,8 @@ bool Item::operator<(const Item& rhs) const
 MultidimensionalKnapsack::MultidimensionalKnapsack(int n, int m, vector<Item> items, vector<int> b)
 	: n(n), m(m), items(items), b(b)
 { }
+MultidimensionalKnapsack::MultidimensionalKnapsack()
+{ }
 int MultidimensionalKnapsack::getM() {
 	return m;
 }

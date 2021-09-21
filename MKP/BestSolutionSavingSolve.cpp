@@ -14,9 +14,8 @@ double BestSolutionSavingSolve(MultidimensionalKnapsack knapsack) {
 	vector<Item> items = knapsack.getItems();
 	vector<int> b = knapsack.getB();
 	vector<vector<int>> indices = GenerateAuxiliaryIndices(knapsack);
-	// I -  items we 100% use in current node, E - set of items we dont use.
+	// I - set of items guaranteed used in current node, E - guaranteed not used items.
 	set<Item> I, E;
-	// Nodes which can become new best solution.
 	vector<Node> availableNodes;
 	// Calculating bound at the starting node.
 	pair<double, int> x = GetBound(knapsack, indices, I, E);
@@ -29,13 +28,11 @@ double BestSolutionSavingSolve(MultidimensionalKnapsack knapsack) {
 	int best = 0;
 	startNode.nodeID = 0;
 	availableNodes.push_back(startNode);
-	// Branch and bound algorithm with best solution saving in action.
 	while (true) {
 		if ((availableNodes.size() == 1) && (best > 0) && (availableNodes[0].branchNum == -1)) {
 			break;
 		}
 		int countOfNodes = availableNodes.size();
-		// Saves best solution for each thread(count of threads = 12).
 		availableNodes.resize(availableNodes.size() * 2);
 		for (int i = 0; i < countOfNodes; i++)
 		{
@@ -50,7 +47,7 @@ double BestSolutionSavingSolve(MultidimensionalKnapsack knapsack) {
 				bool isRight = false;
 				I = node.I;
 				E = node.E;
-				// Item num to branch at.
+				// branch item number
 				int num = node.branchNum;
 				// Suppose branching item not included.
 				E.insert(items[num]);
@@ -102,7 +99,7 @@ double BestSolutionSavingSolve(MultidimensionalKnapsack knapsack) {
 			}
 
 		}
-		// Romoving nodes with bound less then best solution value.
+		// Removing nodes with bound less then best solution value.
 		vector<Node>::iterator it;
 		for (it = availableNodes.begin(); it != availableNodes.end();)
 		{

@@ -7,8 +7,8 @@
 
 using namespace std;
 
-double OrderedSetOfNodesParallelSolve(MultidimensionalKnapsack knapsack) {
-	// Knapsack capacity
+double OrderedSetOfNodesParallelSolve(MultidimensionalKnapsack knapsack, int countOfThreads) {
+	omp_set_num_threads(countOfThreads);
 	int n = knapsack.getN();
 	int m = knapsack.getM();
 	vector<Item> items = knapsack.getItems();
@@ -25,19 +25,18 @@ double OrderedSetOfNodesParallelSolve(MultidimensionalKnapsack knapsack) {
 	startNode.nodeID = 0;
 	availableNodes.insert(startNode);
 	while (true) {
+		// Checks if best solution is integer.
 		if ((*(availableNodes.begin())).branchNum == -1) {
 			break;
 		}
 		set<Node> iteratorNotes = availableNodes;
 #pragma omp parallel for
-		for (int i = 0; i < iteratorNotes.size(); i++)
-		{
+		for (int i = 0; i < min((int)iteratorNotes.size(), countOfThreads); i++)
+		{	
 			auto it = iteratorNotes.begin();
 			advance(it, i);
-			if (it == iteratorNotes.end()) {
-				int g = 15;
-			}
 			Node node = *it;
+			// Node branching.
 			if (node.branchNum != -1) {
 				set<Item> I, E;
 				Node left_node, right_node;
@@ -46,6 +45,7 @@ double OrderedSetOfNodesParallelSolve(MultidimensionalKnapsack knapsack) {
 				I = node.I;
 				E = node.E;
 				int num = node.branchNum;
+				// Left child node.иш
 				E.insert(items[num]);
 				if (isFeasible(knapsack, I, E)) {
 					pair<double, int> b = GetBound(knapsack, indices, I, E);
@@ -57,6 +57,7 @@ double OrderedSetOfNodesParallelSolve(MultidimensionalKnapsack knapsack) {
 					isLeft = true;
 				}
 				E.erase(items[num]);
+				// Right child node
 				I.insert(items[num]);
 				if (isFeasible(knapsack, I, E)) {
 					pair<double, int> b = GetBound(knapsack, indices, I, E);
@@ -68,6 +69,8 @@ double OrderedSetOfNodesParallelSolve(MultidimensionalKnapsack knapsack) {
 					isRight = true;
 
 				}
+				// Removes parent node from available nodes.
+				// Adds children nodes if they are feasible.
 #pragma omp critical
 				{
 					availableNodes.erase(node);
